@@ -3,8 +3,9 @@ import s from "./LetterBox.styles";
 
 type Props = {
   letter: string;
+  bgColour: string;
 };
 
-export const LetterBox: React.FC<Props> = ({ letter }) => {
-  return <s.LetterBox>{letter} </s.LetterBox>;
+export const LetterBox: React.FC<Props> = ({ letter, bgColour }) => {
+  return <s.LetterBox bgColour={bgColour}>{letter}</s.LetterBox>;
 };

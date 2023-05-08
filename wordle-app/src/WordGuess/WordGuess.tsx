@@ -1,6 +1,7 @@
 import React from "react";
 import { LetterBox } from "../LetterBox/LetterBox";
 import { LetterInputBox } from "../LetterInputBox/LetterInputBox";
+import { WordObject } from "../Types";
 import s from "./WordGuess.styles";
 
 type Props = {
@@ -10,7 +11,7 @@ type Props = {
   handleLetterChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   handleKeyDown: (event: React.KeyboardEvent) => void;
   forInput: boolean;
-  guess: string;
+  guess: WordObject;
 };
 
 export const WordGuess: React.FC<Props> = ({
@@ -22,6 +23,17 @@ export const WordGuess: React.FC<Props> = ({
   forInput,
   guess,
 }) => {
+  // var secretWord: string[] = "HELLO".split("");
+  // const findBgColour = (index: number, letter: string) => {
+  //   if (letter === " ") {
+  //     return "white";
+  //   } else if (letter === secretWord[index]) {
+  //     console.log(secretWord);
+  //     return "green";
+  //   } else if (secretWord.includes(letter)) {
+  //     return "yellow";
+  //   } else return "grey";
+  // };
   console.log(guess);
   if (forInput) {
     return (
@@ -43,7 +55,11 @@ export const WordGuess: React.FC<Props> = ({
     return (
       <s.Row>
         {Array.from(Array(5).keys()).map((index: number) => (
-          <LetterBox letter={guess[index]} key={index} />
+          <LetterBox
+            letter={guess.word[index]}
+            key={index}
+            bgColour={guess.letters[index].color}
+          />
         ))}
       </s.Row>
     );

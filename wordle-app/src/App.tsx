@@ -1,16 +1,8 @@
 import { createContext, useEffect, useRef, useState } from "react";
 import "./App.css";
 import s from "./App.styles";
+import { AppContextType, WordObject } from "./Types";
 import { WordGuess } from "./WordGuess/WordGuess";
-
-type AppContextType = {
-  activeIndex: number;
-  setActiveIndex: React.Dispatch<React.SetStateAction<number>>;
-  letters: string[];
-  setLetters: React.Dispatch<React.SetStateAction<string[]>>;
-  guesses: string[];
-  setGuesses: React.Dispatch<React.SetStateAction<string[]>>;
-};
 
 const AppContext = createContext<AppContextType>({
   activeIndex: 0,
@@ -22,15 +14,22 @@ const AppContext = createContext<AppContextType>({
 });
 
 function App() {
+  const wordsArray: WordObject[] = Array.from({ length: 6 }, () => {
+    return {
+      word: "     ",
+      letters: [
+        { letter: " ", color: "white" },
+        { letter: " ", color: "white" },
+        { letter: " ", color: "white" },
+        { letter: " ", color: "white" },
+        { letter: " ", color: "white" },
+      ],
+    };
+  });
+
   const [letters, setLetters] = useState(["", "", "", "", ""]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [guesses, setGuesses] = useState<string[]>([
-    "     ",
-    "     ",
-    "     ",
-    "     ",
-    "     ",
-  ]);
+  const [guesses, setGuesses] = useState<WordObject[]>(wordsArray);
   const [currentGuess, setCurrentGuesses] = useState<number>(0);
   const MAX_GUESSES: number = 5;
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -61,15 +60,51 @@ function App() {
       }
     }
   };
+  var secretWord: string[] = "CREPT".split("");
+
+  const findBgColours = (guessedWord: string[], secretWord: string[]) => {
+    let colours: string[] = ["", "", "", "", ""];
+    for (let i = 0; i < guessedWord.length; i++) {
+      const letter = guessedWord[i];
+      if (letter === " ") {
+        colours[i] = "white";
+      } else if (letter === secretWord[i]) {
+        // Correct letter in correct position
+        secretWord[i] = "_";
+        colours[i] = "green";
+      }
+    }
+    for (let i = 0; i < guessedWord.length; i++) {
+      const letter = guessedWord[i];
+      if (colours[i] === "") {
+        if (secretWord.includes(letter)) {
+          secretWord[secretWord.indexOf(letter)] = "_";
+          colours[i] = "yellow";
+        } else colours[i] = "grey";
+      }
+    }
+    return colours;
+  };
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter") {
-      // Add current word to guesses list
+      const correspondingColours = findBgColours(letters, secretWord);
+      // Create new word object with letters and colors
+      const newWordObject: WordObject = {
+        word: letters.join(""),
+        letters: letters.map((letter, index) => ({
+          letter,
+          color: correspondingColours[index],
+        })),
+      };
       const newGuesses = guesses;
-      newGuesses[currentGuess] = letters.join("");
-      console.log(newGuesses);
-      setGuesses(newGuesses);
+      newGuesses[currentGuess] = newWordObject;
+
       setCurrentGuesses(currentGuess + 1);
+
+      // Add new word object to guesses list
+      setGuesses(newGuesses);
+
       // Clear input boxes and reset active index
       setLetters(["", "", "", "", ""]);
       setActiveIndex(0);
@@ -97,7 +132,7 @@ function App() {
         setGuesses,
       }}
     >
-      {Array.from(Array(3).keys()).map((guess: number) => (
+      {Array.from(Array(MAX_GUESSES).keys()).map((guess: number) => (
         <WordGuess
           key={guess}
           letters={letters}
