@@ -1,10 +1,12 @@
-import { createContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import s from "./App.styles";
-import { Keyboard } from "./Keyboard/Keyboard";
-import { keyboardColoursInit } from "./keyboardColours";
-import { AppContextType, KeyboardColours, WordObject } from "./Types";
-import { WordGuess } from "./WordGuess/WordGuess";
+import { Keyboard } from "./Components/Keyboard/Keyboard";
+import { keyboardColoursInit } from "./WordGameInit/keyboardColours";
+import { KeyboardColours, WordObject } from "./Types";
+import { WordGuess } from "./Components/WordGuess/WordGuess";
+import { wordsArrayInit } from "./WordGameInit/wordsArray";
+import { AppContext } from "./Contexts/appContext";
 
 // TO DO
 // - header styling
@@ -12,37 +14,17 @@ import { WordGuess } from "./WordGuess/WordGuess";
 // - add enter and backspace to keyboard
 // - add stats pge
 
-const AppContext = createContext<AppContextType>({
-  activeIndex: 0,
-  setActiveIndex: () => {},
-  letters: ["", "", "", "", ""],
-  setLetters: () => {},
-  guesses: [],
-  setGuesses: () => {},
-});
-
 function App() {
-  const wordsArray: WordObject[] = Array.from({ length: 6 }, () => {
-    return {
-      word: "     ",
-      letters: [
-        { letter: " ", color: "white" },
-        { letter: " ", color: "white" },
-        { letter: " ", color: "white" },
-        { letter: " ", color: "white" },
-        { letter: " ", color: "white" },
-      ],
-    };
-  });
-
   const [letters, setLetters] = useState(["", "", "", "", ""]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [guesses, setGuesses] = useState<WordObject[]>(wordsArray);
+  const [guesses, setGuesses] = useState<WordObject[]>(wordsArrayInit);
   const [currentGuess, setCurrentGuesses] = useState<number>(0);
   const MAX_GUESSES: number = 5;
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [keyboardColours, setKeyboardColours] =
     useState<KeyboardColours>(keyboardColoursInit);
+  var secretWord: string[] = "CREPT".split("");
+
   useEffect(() => {
     if (inputRef.current) {
       if (activeIndex < 5) {
@@ -69,8 +51,6 @@ function App() {
       }
     }
   };
-  var secretWord: string[] = "CREPT".split("");
-
   const findBgColours = (guessedWord: string[], secretWord: string[]) => {
     let newKeyboardColours = keyboardColours;
     let colours: string[] = ["", "", "", "", ""];

@@ -1,4 +1,4 @@
-import { KeyboardColours } from "./Types";
+import { KeyboardColours } from "../Types";
 
 export const keyboardColoursInit: KeyboardColours = {
   Q: "white",
