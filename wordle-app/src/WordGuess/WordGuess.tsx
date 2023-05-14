@@ -23,17 +23,6 @@ export const WordGuess: React.FC<Props> = ({
   forInput,
   guess,
 }) => {
-  // var secretWord: string[] = "HELLO".split("");
-  // const findBgColour = (index: number, letter: string) => {
-  //   if (letter === " ") {
-  //     return "white";
-  //   } else if (letter === secretWord[index]) {
-  //     console.log(secretWord);
-  //     return "green";
-  //   } else if (secretWord.includes(letter)) {
-  //     return "yellow";
-  //   } else return "grey";
-  // };
   console.log(guess);
   if (forInput) {
     return (
