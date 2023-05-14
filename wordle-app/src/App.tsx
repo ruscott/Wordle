@@ -1,8 +1,16 @@
 import { createContext, useEffect, useRef, useState } from "react";
 import "./App.css";
 import s from "./App.styles";
-import { AppContextType, WordObject } from "./Types";
+import { Keyboard } from "./Keyboard/Keyboard";
+import { keyboardColoursInit } from "./keyboardColours";
+import { AppContextType, KeyboardColours, WordObject } from "./Types";
 import { WordGuess } from "./WordGuess/WordGuess";
+
+// TO DO
+// - header styling
+// - wordle check its a word being submitted
+// - add enter and backspace to keyboard
+// - add stats pge
 
 const AppContext = createContext<AppContextType>({
   activeIndex: 0,
@@ -33,7 +41,8 @@ function App() {
   const [currentGuess, setCurrentGuesses] = useState<number>(0);
   const MAX_GUESSES: number = 5;
   const inputRef = useRef<HTMLInputElement | null>(null);
-
+  const [keyboardColours, setKeyboardColours] =
+    useState<KeyboardColours>(keyboardColoursInit);
   useEffect(() => {
     if (inputRef.current) {
       if (activeIndex < 5) {
@@ -63,6 +72,7 @@ function App() {
   var secretWord: string[] = "CREPT".split("");
 
   const findBgColours = (guessedWord: string[], secretWord: string[]) => {
+    let newKeyboardColours = keyboardColours;
     let colours: string[] = ["", "", "", "", ""];
     for (let i = 0; i < guessedWord.length; i++) {
       const letter = guessedWord[i];
@@ -72,6 +82,7 @@ function App() {
         // Correct letter in correct position
         secretWord[i] = "_";
         colours[i] = "green";
+        newKeyboardColours[letter] = "green";
       }
     }
     for (let i = 0; i < guessedWord.length; i++) {
@@ -80,9 +91,14 @@ function App() {
         if (secretWord.includes(letter)) {
           secretWord[secretWord.indexOf(letter)] = "_";
           colours[i] = "yellow";
-        } else colours[i] = "grey";
+          newKeyboardColours[letter] = "yellow";
+        } else {
+          newKeyboardColours[letter] = "grey";
+          colours[i] = "grey";
+        }
       }
     }
+    setKeyboardColours(newKeyboardColours);
     return colours;
   };
 
@@ -120,31 +136,49 @@ function App() {
       }
     }
   };
+  console.log(keyboardColours);
+
+  const handleKeyClick = (key: string) => {
+    const newLetters = [...letters];
+    if (newLetters[activeIndex].length === 0) {
+      newLetters[activeIndex] = key;
+      setLetters(newLetters);
+      if (activeIndex < 4) {
+        setActiveIndex(activeIndex + 1);
+      }
+    }
+  };
 
   return (
-    <AppContext.Provider
-      value={{
-        activeIndex,
-        setActiveIndex,
-        letters,
-        setLetters,
-        guesses,
-        setGuesses,
-      }}
-    >
-      {Array.from(Array(MAX_GUESSES).keys()).map((guess: number) => (
-        <WordGuess
-          key={guess}
-          letters={letters}
-          activeIndex={activeIndex}
-          inputRef={inputRef}
-          handleLetterChange={handleLetterChange}
-          handleKeyDown={handleKeyDown}
-          forInput={guess === currentGuess}
-          guess={guesses[guess]}
-        />
-      ))}
-    </AppContext.Provider>
+    <>
+      <AppContext.Provider
+        value={{
+          activeIndex,
+          setActiveIndex,
+          letters,
+          setLetters,
+          guesses,
+          setGuesses,
+        }}
+      >
+        {Array.from(Array(MAX_GUESSES).keys()).map((guess: number) => (
+          <WordGuess
+            key={guess}
+            letters={letters}
+            activeIndex={activeIndex}
+            inputRef={inputRef}
+            handleLetterChange={handleLetterChange}
+            handleKeyDown={handleKeyDown}
+            forInput={guess === currentGuess}
+            guess={guesses[guess]}
+          />
+        ))}
+      </AppContext.Provider>
+      <Keyboard
+        onClick={handleKeyClick}
+        keyboardColours={keyboardColours}
+      ></Keyboard>
+    </>
   );
 }
 
