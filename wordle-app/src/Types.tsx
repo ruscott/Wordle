@@ -16,3 +16,7 @@ export type AppContextType = {
   guesses: WordObject[];
   setGuesses: React.Dispatch<React.SetStateAction<WordObject[]>>;
 };
+
+export type KeyboardColours = {
+  [key: string]: string;
+};
