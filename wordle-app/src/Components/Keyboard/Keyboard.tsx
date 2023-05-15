@@ -1,5 +1,5 @@
 import React from "react";
-import s from "./Keybaord.styles";
+import s from "./keyboard.styles";
 
 interface KeyboardProps {
   onClick: (key: string) => void;

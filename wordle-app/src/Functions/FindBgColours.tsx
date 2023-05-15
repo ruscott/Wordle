@@ -1,6 +1,4 @@
-import { useState } from "react";
-import { KeyboardColours } from "../Types";
-import { keyboardColoursInit } from "../WordGameInit/keyboardColours";
+import { KeyboardColours } from "../types";
 
 export const findBgColours = (
   guessedWord: string[],

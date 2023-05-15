@@ -1,34 +1,37 @@
 import { useEffect, useRef, useState } from "react";
+
 import "./App.css";
 import s from "./App.styles";
-import { Keyboard } from "./Components/Keyboard/Keyboard";
-import { KeyboardColours, WordObject } from "./Types";
-import { WordGuess } from "./Components/WordGuess/WordGuess";
+
+import { Keyboard } from "./components/keyboard/keyboard";
+import { KeyboardColours, WordObject } from "./types";
+import { WordGuess } from "./components/WordGuess/WordGuess";
+import Header from "./components/header/header";
+import { Popup } from "./components/Popup/popup";
+
 import {
   lettersInit,
   wordsArrayInit,
   keyboardColoursInit,
 } from "./WordGameInit/WordGameInit";
+import { wordList } from "./WordGameInit/wordList";
+
 import { AppContext } from "./Contexts/appContext";
-import Header from "./Components/Header/header";
-import { wordList } from "./wordList";
-import { Popup } from "./Components/Popup/popup";
+
 import { findBgColours } from "./Functions/FindBgColours";
 
 // TO DO
-// - add enter and backspace to keyboard
 // - add stats pge
-// - shouldn't be allowed to put spaces in
 // - celebration sequence of some sort
-// fix indexing
+// - fix indexing on backspace
 //
+const MAX_GUESSES: number = 5;
 
 function App() {
   const [letters, setLetters] = useState(lettersInit);
   const [activeIndex, setActiveIndex] = useState(0);
   const [guesses, setGuesses] = useState<WordObject[]>(wordsArrayInit);
-  const [currentGuess, setCurrentGuesses] = useState<number>(0);
-  const MAX_GUESSES: number = 5;
+  const [currentGuess, setCurrentGuess] = useState<number>(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [keyboardColours, setKeyboardColours] =
     useState<KeyboardColours>(keyboardColoursInit);
@@ -39,15 +42,16 @@ function App() {
 
   useEffect(() => {
     if (inputRef.current) {
-      if (activeIndex < 5) {
+      if (activeIndex <= 4) {
         inputRef.current.focus();
       }
     }
   }, [activeIndex]);
 
   const updateWordByNewLetter = (inputValue: string) => {
-    const newLetters = [...letters];
-    newLetters[activeIndex] = inputValue;
+    const newLetters = letters.map((letter, index) =>
+      index === activeIndex ? inputValue : letter
+    );
     setLetters(newLetters);
 
     if (inputValue === "") {
@@ -105,7 +109,7 @@ function App() {
         const newGuesses = guesses;
         newGuesses[currentGuess] = newWordObject;
 
-        setCurrentGuesses(currentGuess + 1);
+        setCurrentGuess(currentGuess + 1);
 
         // Add new word object to guesses list
         setGuesses(newGuesses);

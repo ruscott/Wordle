@@ -1,4 +1,4 @@
-import { WordObject, KeyboardColours } from "../Types";
+import { WordObject, KeyboardColours } from "../types";
 
 export const wordsArrayInit: WordObject[] = Array.from({ length: 6 }, () => {
   return {
