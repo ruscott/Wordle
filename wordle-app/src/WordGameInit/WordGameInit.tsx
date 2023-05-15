@@ -1,4 +1,19 @@
-import { KeyboardColours } from "../Types";
+import { WordObject, KeyboardColours } from "../Types";
+
+export const wordsArrayInit: WordObject[] = Array.from({ length: 6 }, () => {
+  return {
+    word: "     ",
+    letters: [
+      { letter: " ", color: "white" },
+      { letter: " ", color: "white" },
+      { letter: " ", color: "white" },
+      { letter: " ", color: "white" },
+      { letter: " ", color: "white" },
+    ],
+  };
+});
+
+export const lettersInit: string[] = ["", "", "", "", ""];
 
 export const keyboardColoursInit: KeyboardColours = {
   Q: "white",
