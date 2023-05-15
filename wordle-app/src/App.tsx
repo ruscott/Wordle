@@ -2,20 +2,29 @@ import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import s from "./App.styles";
 import { Keyboard } from "./Components/Keyboard/Keyboard";
-import { keyboardColoursInit } from "./WordGameInit/keyboardColours";
 import { KeyboardColours, WordObject } from "./Types";
 import { WordGuess } from "./Components/WordGuess/WordGuess";
-import { wordsArrayInit } from "./WordGameInit/wordsArray";
+import {
+  lettersInit,
+  wordsArrayInit,
+  keyboardColoursInit,
+} from "./WordGameInit/WordGameInit";
 import { AppContext } from "./Contexts/appContext";
+import Header from "./Components/Header/header";
+import { wordList } from "./wordList";
+import { Popup } from "./Components/Popup/popup";
+import { findBgColours } from "./Functions/FindBgColours";
 
 // TO DO
-// - header styling
-// - wordle check its a word being submitted
 // - add enter and backspace to keyboard
 // - add stats pge
+// - shouldn't be allowed to put spaces in
+// - celebration sequence of some sort
+// fix indexing
+//
 
 function App() {
-  const [letters, setLetters] = useState(["", "", "", "", ""]);
+  const [letters, setLetters] = useState(lettersInit);
   const [activeIndex, setActiveIndex] = useState(0);
   const [guesses, setGuesses] = useState<WordObject[]>(wordsArrayInit);
   const [currentGuess, setCurrentGuesses] = useState<number>(0);
@@ -23,7 +32,10 @@ function App() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [keyboardColours, setKeyboardColours] =
     useState<KeyboardColours>(keyboardColoursInit);
-  var secretWord: string[] = "CREPT".split("");
+  const [showPopup, setShowPopup] = useState<boolean>(false);
+  const [popupDialogue, setPopupDialogue] = useState<string>("");
+
+  var secretWord: string[] = "RACES".split("");
 
   useEffect(() => {
     if (inputRef.current) {
@@ -33,9 +45,8 @@ function App() {
     }
   }, [activeIndex]);
 
-  const handleLetterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const updateWordByNewLetter = (inputValue: string) => {
     const newLetters = [...letters];
-    const inputValue = event.target.value.toUpperCase().slice(0, 1); // get first letter only
     newLetters[activeIndex] = inputValue;
     setLetters(newLetters);
 
@@ -51,59 +62,58 @@ function App() {
       }
     }
   };
-  const findBgColours = (guessedWord: string[], secretWord: string[]) => {
-    let newKeyboardColours = keyboardColours;
-    let colours: string[] = ["", "", "", "", ""];
-    for (let i = 0; i < guessedWord.length; i++) {
-      const letter = guessedWord[i];
-      if (letter === " ") {
-        colours[i] = "white";
-      } else if (letter === secretWord[i]) {
-        // Correct letter in correct position
-        secretWord[i] = "_";
-        colours[i] = "green";
-        newKeyboardColours[letter] = "green";
-      }
+
+  const handleLetterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = event.target.value.toUpperCase().slice(0, 1); // get first letter only
+    if (inputValue === " ") {
+    } else {
+      updateWordByNewLetter(inputValue);
     }
-    for (let i = 0; i < guessedWord.length; i++) {
-      const letter = guessedWord[i];
-      if (colours[i] === "") {
-        if (secretWord.includes(letter)) {
-          secretWord[secretWord.indexOf(letter)] = "_";
-          colours[i] = "yellow";
-          newKeyboardColours[letter] = "yellow";
-        } else {
-          newKeyboardColours[letter] = "grey";
-          colours[i] = "grey";
-        }
-      }
+  };
+
+  const handleClose = () => {
+    setShowPopup(false);
+    if (inputRef.current) {
+      inputRef.current.focus();
     }
-    setKeyboardColours(newKeyboardColours);
-    return colours;
   };
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter") {
-      const correspondingColours = findBgColours(letters, secretWord);
-      // Create new word object with letters and colors
-      const newWordObject: WordObject = {
-        word: letters.join(""),
-        letters: letters.map((letter, index) => ({
-          letter,
-          color: correspondingColours[index],
-        })),
-      };
-      const newGuesses = guesses;
-      newGuesses[currentGuess] = newWordObject;
+      const word = letters.join("");
+      if (word.length < 5) {
+        setPopupDialogue("Word is too short!");
+        setShowPopup(true);
+      } else if (!wordList.includes(word.toLowerCase())) {
+        setPopupDialogue("Not a word!");
+        setShowPopup(true);
+      } else {
+        const correspondingColours = findBgColours(
+          letters,
+          secretWord,
+          keyboardColours,
+          setKeyboardColours
+        );
+        // Create new word object with letters and colors
+        const newWordObject: WordObject = {
+          word: word,
+          letters: letters.map((letter, index) => ({
+            letter,
+            color: correspondingColours[index],
+          })),
+        };
+        const newGuesses = guesses;
+        newGuesses[currentGuess] = newWordObject;
 
-      setCurrentGuesses(currentGuess + 1);
+        setCurrentGuesses(currentGuess + 1);
 
-      // Add new word object to guesses list
-      setGuesses(newGuesses);
+        // Add new word object to guesses list
+        setGuesses(newGuesses);
 
-      // Clear input boxes and reset active index
-      setLetters(["", "", "", "", ""]);
-      setActiveIndex(0);
+        // Clear input boxes and reset active index
+        setLetters(lettersInit);
+        setActiveIndex(0);
+      }
     }
     // Move to the previous box when the user presses the backspace key
     else if (event.key === "Backspace" && activeIndex > 0) {
@@ -116,21 +126,36 @@ function App() {
       }
     }
   };
-  console.log(keyboardColours);
 
   const handleKeyClick = (key: string) => {
-    const newLetters = [...letters];
-    if (newLetters[activeIndex].length === 0) {
-      newLetters[activeIndex] = key;
+    if (key === "Return") {
+      console.log("return");
+    } else if (key === "Backspace") {
+      const newLetters = [...letters];
+      newLetters[activeIndex] = ""; // set current box to empty
       setLetters(newLetters);
-      if (activeIndex < 4) {
-        setActiveIndex(activeIndex + 1);
+      if (activeIndex > 0) {
+        setActiveIndex(activeIndex - 1);
       }
+
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+      console.log("back");
+    } else {
+      updateWordByNewLetter(key);
     }
   };
 
   return (
     <>
+      <Header></Header>
+      <Popup
+        showPopup={showPopup}
+        setShowPopup={setShowPopup}
+        text={popupDialogue}
+        handelClose={handleClose}
+      ></Popup>
       <AppContext.Provider
         value={{
           activeIndex,

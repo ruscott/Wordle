@@ -5,7 +5,11 @@ const Box = styled.input`
   margin-top: 5%;
 `;
 
+const WordBox = styled.input`
+  margin: auto;
+  margin-top: 5%;
+`;
 
-const styles = { Box };
+const styles = { Box, WordBox };
 
 export default styles;
