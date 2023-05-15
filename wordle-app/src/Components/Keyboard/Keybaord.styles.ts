@@ -1,13 +1,13 @@
 import styled from "styled-components";
 
-const Key = styled.button<{ bgColour: string }>`
+const Key = styled.button<{ bgColour: string; isWide?: boolean }>`
   background-color: ${(props) => props.bgColour};
   color: "white";
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 0.45%;
-  margin: 1px 1px;
+  margin: 3px 1px;
   font-size: 25px;
-  width: 30px;
+  width: ${(props) => (props.isWide ? "auto" : "50px")};
 `;
 
 const Keyboard = styled.div`
@@ -15,7 +15,7 @@ const Keyboard = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  padding-top: 20px;
+  padding-top: 30px;
 `;
 
 const KeyboardRow = styled.div`

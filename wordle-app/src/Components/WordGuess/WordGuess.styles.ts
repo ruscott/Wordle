@@ -1,8 +1,8 @@
 import styled from "styled-components";
 
 const Row = styled.div`
-  width: 50vh;
-  height: 10vh;
+  width: 400px;
+  height: 80px;
   display: flex;
   margin: auto;
 `;
