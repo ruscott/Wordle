@@ -42,7 +42,7 @@ function App() {
 
   useEffect(() => {
     if (inputRef.current) {
-      if (activeIndex <= 4) {
+      if (activeIndex < 5) {
         inputRef.current.focus();
       }
     }
@@ -82,7 +82,61 @@ function App() {
     }
   };
 
+  const handelEnterPress = () => {
+    const word = letters.join("");
+    if (word.length < 5) {
+      setPopupDialogue("Word is too short!");
+      setShowPopup(true);
+    } else if (!wordList.includes(word.toLowerCase())) {
+      setPopupDialogue("Not a word!");
+      setShowPopup(true);
+    } else {
+      const correspondingColours = findBgColours(
+        letters,
+        secretWord,
+        keyboardColours,
+        setKeyboardColours
+      );
+      // Create new word object with letters and colors
+      const newWordObject: WordObject = {
+        word: word,
+        letters: letters.map((letter, index) => ({
+          letter,
+          color: correspondingColours[index],
+        })),
+      };
+      const newGuesses = guesses;
+      newGuesses[currentGuess] = newWordObject;
+
+      setCurrentGuess(currentGuess + 1);
+
+      // Add new word object to guesses list
+      setGuesses(newGuesses);
+
+      // Clear input boxes and reset active index
+      setLetters(lettersInit);
+      setActiveIndex(0);
+    }
+  };
+
+  const handelDelete = () => {
+    const newLetters = [...letters];
+
+    if (newLetters[activeIndex] !== "") {
+      newLetters[activeIndex] = "";
+      setLetters(newLetters);
+    } else if (activeIndex > 0) {
+      setActiveIndex(activeIndex - 1);
+      newLetters[activeIndex - 1] = "";
+      setLetters(newLetters);
+    }
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+  console.log(letters);
   const handleKeyDown = (event: React.KeyboardEvent) => {
+    console.log(activeIndex);
     if (event.key === "Enter") {
       const word = letters.join("");
       if (word.length < 5) {
@@ -120,32 +174,17 @@ function App() {
       }
     }
     // Move to the previous box when the user presses the backspace key
-    else if (event.key === "Backspace" && activeIndex > 0) {
-      // backspace key
-      const newLetters = [...letters];
-      newLetters[activeIndex] = ""; // set current box to empty
-      setLetters(newLetters);
-      if (activeIndex > 0) {
-        setActiveIndex(activeIndex - 1);
-      }
+    else if (event.key === "Backspace") {
+      event.preventDefault();
+      handelDelete();
     }
   };
 
   const handleKeyClick = (key: string) => {
     if (key === "Return") {
-      console.log("return");
+      handelEnterPress();
     } else if (key === "Backspace") {
-      const newLetters = [...letters];
-      newLetters[activeIndex] = ""; // set current box to empty
-      setLetters(newLetters);
-      if (activeIndex > 0) {
-        setActiveIndex(activeIndex - 1);
-      }
-
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-      console.log("back");
+      handelDelete();
     } else {
       updateWordByNewLetter(key);
     }
