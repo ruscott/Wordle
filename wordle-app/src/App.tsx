@@ -23,7 +23,8 @@ import { findBgColours } from "./Functions/FindBgColours";
 // TO DO
 // - add stats pge
 // - celebration sequence of some sort
-// - fix indexing on backspace
+// - refactor code a bit
+// -when you click final letter can't press enter
 //
 const MAX_GUESSES: number = 5;
 
