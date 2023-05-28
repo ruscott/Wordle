@@ -1,5 +1,5 @@
 import React from "react";
-import s from "./LetterBox.styles";
+import s from "./letterBox.styles";
 
 type Props = {
   letter: string;

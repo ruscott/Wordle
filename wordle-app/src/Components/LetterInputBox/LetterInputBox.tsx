@@ -1,5 +1,5 @@
 import React from "react";
-import s from "./LetterInputBox.styles";
+import s from "./letterInputBox.styles";
 
 type Props = {
   index: number;

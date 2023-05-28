@@ -1,7 +1,7 @@
 import React from "react";
 import { WordObject } from "../../types";
-import { LetterBox } from "../LetterBox/LetterBox";
-import { LetterInputBox } from "../LetterInputBox/LetterInputBox";
+import { LetterBox } from "../letterBox/letterBox";
+import { LetterInputBox } from "../letterInputBox/letterInputBox";
 import s from "./WordGuess.styles";
 
 type Props = {
