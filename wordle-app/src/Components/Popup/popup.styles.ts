@@ -1,6 +1,11 @@
-import styled from "styled-components";
+import styled, { css, keyframes } from "styled-components";
 
-const PopupContainer = styled.div`
+const spinAnimation = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`;
+
+const PopupContainer = styled.div<{ hasWon: boolean }>`
   position: fixed;
   left: 0;
   width: 100%;
@@ -9,6 +14,12 @@ const PopupContainer = styled.div`
   justify-content: center;
   align-items: center;
   bottom: 20%;
+
+  ${({ hasWon }) =>
+    hasWon &&
+    css`
+      animation: ${spinAnimation} 4s linear 2s;
+    `}
 `;
 
 const PopupContent = styled.div`

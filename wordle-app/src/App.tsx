@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
 import "./App.css";
-import s from "./App.styles";
 
 import { Keyboard } from "./components/keyboard/keyboard";
 import { KeyboardColours, WordObject } from "./types";
@@ -24,7 +23,7 @@ import { findBgColours } from "./Functions/FindBgColours";
 // - add stats pge
 // - celebration sequence of some sort
 // - refactor code a bit
-// -when you click final letter can't press enter
+// - when you click final letter can't press enter
 //
 const MAX_GUESSES: number = 5;
 
@@ -38,6 +37,7 @@ function App() {
     useState<KeyboardColours>(keyboardColoursInit);
   const [showPopup, setShowPopup] = useState<boolean>(false);
   const [popupDialogue, setPopupDialogue] = useState<string>("");
+  const [hasWon, setHasWon] = useState<boolean>(false);
 
   var secretWord: string[] = "RACES".split("");
 
@@ -76,15 +76,19 @@ function App() {
     }
   };
 
-  const handleClose = () => {
-    setShowPopup(false);
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  };
-
-  const handelEnterPress = () => {
+  const handelEnter = () => {
     const word = letters.join("");
+    if (word === secretWord.join("")) {
+      setHasWon(true);
+      setPopupDialogue(
+        "Well done you guessed the word " +
+          secretWord.join("") +
+          " correctly in " +
+          (MAX_GUESSES - currentGuess) +
+          " guesses"
+      );
+      setShowPopup(true);
+    }
     if (word.length < 5) {
       setPopupDialogue("Word is too short!");
       setShowPopup(true);
@@ -135,44 +139,9 @@ function App() {
       inputRef.current.focus();
     }
   };
-  console.log(letters);
   const handleKeyDown = (event: React.KeyboardEvent) => {
-    console.log(activeIndex);
     if (event.key === "Enter") {
-      const word = letters.join("");
-      if (word.length < 5) {
-        setPopupDialogue("Word is too short!");
-        setShowPopup(true);
-      } else if (!wordList.includes(word.toLowerCase())) {
-        setPopupDialogue("Not a word!");
-        setShowPopup(true);
-      } else {
-        const correspondingColours = findBgColours(
-          letters,
-          secretWord,
-          keyboardColours,
-          setKeyboardColours
-        );
-        // Create new word object with letters and colors
-        const newWordObject: WordObject = {
-          word: word,
-          letters: letters.map((letter, index) => ({
-            letter,
-            color: correspondingColours[index],
-          })),
-        };
-        const newGuesses = guesses;
-        newGuesses[currentGuess] = newWordObject;
-
-        setCurrentGuess(currentGuess + 1);
-
-        // Add new word object to guesses list
-        setGuesses(newGuesses);
-
-        // Clear input boxes and reset active index
-        setLetters(lettersInit);
-        setActiveIndex(0);
-      }
+      handelEnter();
     }
     // Move to the previous box when the user presses the backspace key
     else if (event.key === "Backspace") {
@@ -183,7 +152,7 @@ function App() {
 
   const handleKeyClick = (key: string) => {
     if (key === "Return") {
-      handelEnterPress();
+      handelEnter();
     } else if (key === "Backspace") {
       handelDelete();
     } else {
@@ -194,22 +163,25 @@ function App() {
   return (
     <>
       <Header></Header>
-      <Popup
-        showPopup={showPopup}
-        setShowPopup={setShowPopup}
-        text={popupDialogue}
-        handelClose={handleClose}
-      ></Popup>
+
       <AppContext.Provider
         value={{
           activeIndex,
-          setActiveIndex,
           letters,
           setLetters,
           guesses,
           setGuesses,
+          setCurrentGuess,
+          setHasWon,
+          setShowPopup,
+          setKeyboardColours,
         }}
       >
+        <Popup
+          showPopup={showPopup}
+          text={popupDialogue}
+          hasWon={hasWon}
+        ></Popup>
         {Array.from(Array(MAX_GUESSES).keys()).map((guess: number) => (
           <WordGuess
             key={guess}
@@ -218,7 +190,7 @@ function App() {
             inputRef={inputRef}
             handleLetterChange={handleLetterChange}
             handleKeyDown={handleKeyDown}
-            forInput={guess === currentGuess}
+            forInput={guess === currentGuess && !hasWon}
             guess={guesses[guess]}
           />
         ))}
